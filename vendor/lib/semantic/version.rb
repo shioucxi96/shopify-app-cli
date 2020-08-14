@@ -10,7 +10,7 @@ module Semantic
     attr_reader :build
 
     def initialize version_str
-      v = version_str.match(SemVerRegexp)
+      v = version_str&.match(SemVerRegexp)
 
       raise ArgumentError.new("#{version_str} is not a valid SemVer Version (http://semver.org)") if v.nil?
       @major = v[1].to_i
