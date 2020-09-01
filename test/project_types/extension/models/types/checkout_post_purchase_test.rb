@@ -30,11 +30,11 @@ module Extension
         end
 
         def test_config_merges_with_standard_argo_config_implementation
-          script_content ="alert(true)";
-          metafields = [{key: 'a-key'}]
+          script_content = "alert(true)"
+          metafields = [{ key: 'a-key' }]
 
-          initial_config = {script_content: script_content}
-          yaml_config = {"metafields": metafields}
+          initial_config = { script_content: script_content }
+          yaml_config = { "metafields": metafields }
           YAML.stubs(:load_file).returns(yaml_config)
 
           Features::Argo.checkout.expects(:config).with(@context).once.returns(initial_config)
@@ -46,7 +46,7 @@ module Extension
         end
 
         def test_config_filters_keys
-          YAML.stubs(:load_file).returns({"illegal_one": {}, "metafields": [], "illegal_two": []})
+          YAML.stubs(:load_file).returns({ "illegal_one": {}, "metafields": [], "illegal_two": [] })
 
           config = @checkout_post_purchase.config(@context)
 
@@ -63,7 +63,7 @@ module Extension
         end
 
         def test_config_aborts_when_yaml_is_not_a_hash
-          YAML.stubs(:load_file).returns()
+          YAML.stubs(:load_file).returns
 
           assert_raises(ShopifyCli::Abort) { @checkout_post_purchase.config(@context) }
         end

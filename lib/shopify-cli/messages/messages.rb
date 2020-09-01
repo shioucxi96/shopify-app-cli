@@ -192,7 +192,7 @@ module ShopifyCli
             not_hash: "{{x}} %s was not a proper YAML file. Expecting a hash.",
             invalid: "{{x}} %s contains invalid YAML: %s",
             not_found: "{{x}} %s not found",
-          }
+          },
         },
 
         project_type: {

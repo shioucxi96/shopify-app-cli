@@ -16,7 +16,7 @@ module Extension
         def config(context)
           {
             **Features::Argo.checkout.config(context),
-            **extension_config(context)
+            **extension_config(context),
           }
         end
 
@@ -39,12 +39,14 @@ module Extension
           begin
             YAML.load_file(File.join(context.root, CONFIG_FILE_NAME))
           rescue Psych::SyntaxError => e
-            raise(ShopifyCli::Abort, ShopifyCli::Context.message('core.yaml.error.invalid', CONFIG_FILE_NAME, e.message))
+            raise(
+              ShopifyCli::Abort,
+              ShopifyCli::Context.message('core.yaml.error.invalid', CONFIG_FILE_NAME, e.message)
+            )
           rescue Errno::ENOENT
             nil
           end
         end
-
       end
     end
   end
