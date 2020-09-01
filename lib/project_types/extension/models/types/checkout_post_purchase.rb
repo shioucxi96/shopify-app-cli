@@ -26,7 +26,7 @@ module Extension
           config = load_extension_config_yaml(context)
 
           unless config.is_a?(Hash)
-            raise ShopifyCli::Abort, Context.message('core.project.error.cli_yaml.not_hash')
+            raise ShopifyCli::Abort, ShopifyCli::Context.message('core.yaml.error.not_hash', CONFIG_FILE_NAME)
           end
 
           config
@@ -39,8 +39,7 @@ module Extension
           begin
             YAML.load_file(File.join(context.root, CONFIG_FILE_NAME))
           rescue Psych::SyntaxError => e
-            # TODO: change translation
-            raise(ShopifyCli::Abort, Context.message('core.project.error.cli_yaml.invalid', relative_path, e.message))
+            raise(ShopifyCli::Abort, ShopifyCli::Context.message('core.yaml.error.invalid', CONFIG_FILE_NAME, e.message))
           rescue Errno::ENOENT
             nil
           end
