@@ -10,6 +10,8 @@ module Extension
           YAML.stubs(:load_file).returns({})
           ShopifyCli::ProjectType.load_type(:extension)
           Features::Argo.checkout.stubs(:config).returns({})
+          Features::ArgoConfig.stubs(:parse_yaml).returns({})
+
           @checkout_post_purchase = Models::Type.load_type(CheckoutPostPurchase::IDENTIFIER)
         end
 
@@ -31,41 +33,18 @@ module Extension
 
         def test_config_merges_with_standard_argo_config_implementation
           script_content = "alert(true)"
-          metafields = [{ key: 'a-key' }]
+          metafields = [{ key: 'a-key', namespace: 'a-namespace' }]
 
           initial_config = { script_content: script_content }
           yaml_config = { "metafields": metafields }
-          YAML.stubs(:load_file).returns(yaml_config)
 
           Features::Argo.checkout.expects(:config).with(@context).once.returns(initial_config)
+          Features::ArgoConfig.expects(:parse_yaml).with(@context).once.returns(yaml_config)
 
           config = @checkout_post_purchase.config(@context)
 
           assert_equal(metafields, config[:metafields])
           assert_equal(script_content, config[:script_content])
-        end
-
-        def test_config_filters_keys
-          YAML.stubs(:load_file).returns({ "illegal_one": {}, "metafields": [], "illegal_two": [] })
-
-          config = @checkout_post_purchase.config(@context)
-
-          assert_nil(config[:illegal_one])
-          assert_nil(config[:illegal_two])
-          refute_nil(config[:metafields])
-        end
-
-        def test_config_aborts_when_yaml_is_invalid
-          Psych::SyntaxError.any_instance.stubs(:initialize)
-          YAML.stubs(:load_file).raises(Psych::SyntaxError)
-
-          assert_raises(ShopifyCli::Abort) { @checkout_post_purchase.config(@context) }
-        end
-
-        def test_config_aborts_when_yaml_is_not_a_hash
-          YAML.stubs(:load_file).returns
-
-          assert_raises(ShopifyCli::Abort) { @checkout_post_purchase.config(@context) }
         end
       end
     end
