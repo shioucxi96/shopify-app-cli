@@ -7,6 +7,7 @@ module Extension
     class ArgoConfigTest < MiniTest::Test
       def setup
         super
+        File.stubs(:exist?).returns(true)
         ShopifyCli::ProjectType.load_type(:extension)
       end
 
@@ -36,8 +37,7 @@ module Extension
       end
 
       def test_returns_empty_hash_when_file_not_found
-        Psych::SyntaxError.any_instance.stubs(:initialize)
-        YAML.stubs(:load_file).raises(Errno::ENOENT)
+        File.stubs(:exist?).returns(false)
 
         assert_equal({}, ArgoConfig.parse_yaml(@context))
       end
