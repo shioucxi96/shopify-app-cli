@@ -13,8 +13,8 @@ module Extension
 
         def config(context)
           {
-            **Features::Argo.checkout.config(context),
             **Features::ArgoConfig.parse_yaml(context),
+            **Features::Argo.checkout.config(context),
           }
         end
       end
