@@ -39,12 +39,18 @@ module Extension
           yaml_config = { "metafields": metafields }
 
           Features::Argo.checkout.expects(:config).with(@context).once.returns(initial_config)
-          Features::ArgoConfig.expects(:parse_yaml).with(@context).once.returns(yaml_config)
+          Features::ArgoConfig.stubs(:parse_yaml).returns(yaml_config)
 
           config = @checkout_post_purchase.config(@context)
 
           assert_equal(metafields, config[:metafields])
           assert_equal(script_content, config[:script_content])
+        end
+
+        def test_config_passes_allowed_keys
+          Features::Argo.checkout.stubs(:config).returns({})
+          Features::ArgoConfig.expects(:parse_yaml).with(@context, [:metafields]).once.returns({})
+          @checkout_post_purchase.config(@context)
         end
       end
     end

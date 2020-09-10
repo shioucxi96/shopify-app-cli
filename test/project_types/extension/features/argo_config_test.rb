@@ -17,7 +17,7 @@ module Extension
         yml = { "value": value, "another_value": another_value }
         YAML.stubs(:load_file).returns(yml)
 
-        parsed_config = ArgoConfig.parse_yaml(@context)
+        parsed_config = ArgoConfig.parse_yaml(@context, [:value, :another_value])
 
         assert_equal(value, parsed_config[:value])
         assert_equal(another_value, parsed_config[:another_value])
@@ -46,6 +46,22 @@ module Extension
         YAML.stubs(:load_file).returns(nil)
 
         assert_equal({}, ArgoConfig.parse_yaml(@context))
+      end
+
+      def test_aborts_when_yaml_contains_unpermitted_keys
+        permitted_keys = [:a, :b]
+
+        YAML.stubs(:load_file).returns({ "a" => 1, "c" => 1 })
+
+        assert_raises(ShopifyCli::Abort) { ArgoConfig.parse_yaml(@context, permitted_keys) }
+      end
+
+      def test_does_not_abort_when_yaml_contains_no_unpermitted_keys
+        permitted_keys = [:a, :b]
+
+        YAML.stubs(:load_file).returns({ "a" => 1, "b" => 1 })
+
+        assert_nothing_raised(ShopifyCli::Abort) { ArgoConfig.parse_yaml(@context, permitted_keys) }
       end
     end
   end
