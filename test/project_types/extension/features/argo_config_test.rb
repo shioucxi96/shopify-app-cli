@@ -7,7 +7,7 @@ module Extension
     class ArgoConfigTest < MiniTest::Test
       def setup
         super
-        File.stubs(:exist?).returns(true)
+        File.stubs(:size?).returns(true)
         ShopifyCli::ProjectType.load_type(:extension)
       end
 
@@ -31,13 +31,19 @@ module Extension
       end
 
       def test_aborts_when_yaml_is_not_a_hash
-        YAML.stubs(:load_file).returns
+        YAML.stubs(:load_file).returns(false)
 
         assert_raises(ShopifyCli::Abort) { ArgoConfig.parse_yaml(@context) }
       end
 
-      def test_returns_empty_hash_when_file_not_found
-        File.stubs(:exist?).returns(false)
+      def test_returns_empty_hash_when_file_not_found_or_empty
+        File.stubs(:size?).returns(false)
+
+        assert_equal({}, ArgoConfig.parse_yaml(@context))
+      end
+
+      def test_returns_empty_hash_when_file_contains_no_parsable_yaml_data
+        YAML.stubs(:load_file).returns(nil)
 
         assert_equal({}, ArgoConfig.parse_yaml(@context))
       end

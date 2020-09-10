@@ -8,11 +8,16 @@ module Extension
       def self.parse_yaml(context)
         file_name = File.join(context.root, CONFIG_FILE_NAME)
 
-        return {} unless File.exist?(file_name)
+        return {} unless File.size?(file_name)
 
         require 'yaml' # takes 20ms, so deferred as late as possible.
         begin
           config = YAML.load_file(file_name)
+
+          # `YAML.load_file` returns nil if the file is not empty
+          # but does not contain any parsable yml data, e.g. only comments
+          # We consider this valid
+          return {} if config.nil?
 
           unless config.is_a?(Hash)
             raise ShopifyCli::Abort, ShopifyCli::Context.message('core.yaml.error.not_hash', CONFIG_FILE_NAME)
